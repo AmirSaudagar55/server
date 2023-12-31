@@ -2,7 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 import cors from "cors"
-import { userRoute } from "./routes/userRoutes.js"
+import { userRoute } from "./routes/userRoute.js"
 import { residencyRoute } from "./routes/residencyRoute.js"
 dotenv.config()
 
