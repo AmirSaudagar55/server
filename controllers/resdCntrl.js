@@ -63,3 +63,29 @@ export const getResidency = asyncHandler(async (req, res) => {
     throw new Error(err.message);
   }
 });
+
+//Function to delete residency
+export const deleteResidency = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if the residency exists
+    const existingResidency = await prisma.residency.findUnique({
+      where: { id },
+    });
+
+    if (!existingResidency) {
+      return res.status(404).json({ message: 'Residency not found' });
+    }
+
+    // Delete the residency
+    await prisma.residency.delete({
+      where: { id },
+    });
+
+    res.json({ message: 'Residency deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
