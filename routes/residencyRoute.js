@@ -6,5 +6,6 @@ router.post("/create", createResidency)
 router.get("/allresd", getAllResidencies)
 router.get("/:id", getResidency)
 router.delete('/delete/:id', deleteResidency);
+router.put('/update/:id', updateResidency); 
 
 export {router as residencyRoute}
