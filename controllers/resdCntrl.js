@@ -89,3 +89,51 @@ export const deleteResidency = asyncHandler(async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+//Function to update Residency
+export const updateResidency = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const {
+    title,
+    description,
+    price,
+    address,
+    country,
+    city,
+    facilities,
+    image,
+    userEmail,
+  } = req.body.data;
+
+  try {
+    // Check if the residency exists
+    const existingResidency = await prisma.residency.findUnique({
+      where: { id },
+    });
+
+    if (!existingResidency) {
+      return res.status(404).json({ message: 'Residency not found' });
+    }
+
+    // Update the residency
+    const updatedResidency = await prisma.residency.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        price,
+        address,
+        country,
+        city,
+        facilities,
+        image,
+        owner: { connect: { email: userEmail } },
+      },
+    });
+
+    res.json({ message: 'Residency updated successfully', residency: updatedResidency });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
