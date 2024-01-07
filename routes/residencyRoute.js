@@ -1,5 +1,5 @@
 import express from "express"
-import { createResidency, getAllResidencies, deleteResidency, getResidency } from "../controllers/resdCntrl.js"
+import { createResidency, getAllResidencies, deleteResidency, getResidency, updateResidency } from "../controllers/resdCntrl.js"
 const router = express.Router()
 
 router.post("/create", createResidency)
