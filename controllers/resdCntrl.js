@@ -15,7 +15,6 @@ export const createResidency = asyncHandler(async (req, res) => {
     userEmail,
   } = req.body.data;
 
-  console.log(req.body.data);
   try {
     const residency = await prisma.residency.create({
       data: {
@@ -28,13 +27,14 @@ export const createResidency = asyncHandler(async (req, res) => {
         facilities,
         image,
         owner: { connect: { email: userEmail } },
+        bookedBedrooms: 0,
       },
     });
 
     res.send({ message: "Residency created successfully", residency });
   } catch (err) {
     if (err.code === "P2002") {
-      throw new Error("A residency with address already there");
+      throw new Error("A residency with the same address already exists");
     }
     throw new Error(err.message);
   }
