@@ -5,6 +5,7 @@ import {
   createUser,
   getAllBookings,
   getAllFavorites,
+  getAllUsers,
   toFav,
 } from "../controllers/userCntrl.js";
 import jwtCheck from "../config/auth0Config.js";
@@ -16,4 +17,5 @@ router.post("/allBookings", getAllBookings);
 router.post("/removeBooking/:id", jwtCheck, cancelBooking);
 router.post("/toFav/:rid", jwtCheck, toFav);
 router.post("/allFav/", jwtCheck, getAllFavorites);
+router.get("/allUsers", getAllUsers);
 export { router as userRoute };
