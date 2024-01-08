@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-    id               String      @id @default(auto()) @map("_id") @db.ObjectId
-    name             String?
-    email            String      @unique
-    image            String?
-    bookedVisits     Json[]
-    favResidenciesID String[]    @db.ObjectId
-    ownedResidencies Residency[] @relation("Owner")
+  id               String      @id @default(auto()) @map("_id") @db.ObjectId
+  name             String?     // Make it optional
+  email            String      @unique
+  phone            String?     // Make it optional
+  image            String?
+  bookedVisits     Json[]
+  favResidenciesID String[]    @db.ObjectId
+  ownedResidencies Residency[] @relation("Owner")
 }
 
 model Residency {
