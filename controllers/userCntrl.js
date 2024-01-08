@@ -28,17 +28,33 @@ export const bookVisit = asyncHandler(async (req, res) => {
     });
 
     if (alreadyBooked.bookedVisits.some((visit) => visit.id === id)) {
-      res
-        .status(400)
-        .json({ message: "This residency is already booked by you" });
+      res.status(400).json({ message: "This residency is already booked by you" });
     } else {
-      await prisma.user.update({
-        where: { email: email },
-        data: {
-          bookedVisits: { push: { id, date } },
-        },
+      const residency = await prisma.residency.findUnique({
+        where: { id },
+        select: { bookedBedrooms: true, facilities: true },
       });
-      res.send("your visit is booked successfully");
+
+      // Check if the booked bedrooms exceed the total bedrooms
+      if (residency.bookedBedrooms + 1 > residency.facilities.bedrooms) {
+        res.status(400).json({ message: "Booking failed. All bedrooms are already booked." });
+      } else {
+        // Increment the bookedBedrooms count
+        await prisma.residency.update({
+          where: { id },
+          data: { bookedBedrooms: residency.bookedBedrooms + 1 },
+        });
+
+        // Update the user's bookedVisits
+        await prisma.user.update({
+          where: { email: email },
+          data: {
+            bookedVisits: { push: { id, date } },
+          },
+        });
+
+        res.send("Your visit is booked successfully");
+      }
     }
   } catch (err) {
     throw new Error(err.message);
@@ -59,10 +75,12 @@ export const getAllBookings = asyncHandler(async (req, res) => {
   }
 });
 
+
 // function to cancel the booking
 export const cancelBooking = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const { id } = req.params;
+
   try {
     const user = await prisma.user.findUnique({
       where: { email: email },
@@ -74,6 +92,18 @@ export const cancelBooking = asyncHandler(async (req, res) => {
     if (index === -1) {
       res.status(404).json({ message: "Booking not found" });
     } else {
+      const residency = await prisma.residency.findUnique({
+        where: { id },
+        select: { bookedBedrooms: true },
+      });
+
+      // Decrement the bookedBedrooms count
+      await prisma.residency.update({
+        where: { id },
+        data: { bookedBedrooms: residency.bookedBedrooms - 1 },
+      });
+
+      // Remove the booking from user's bookedVisits
       user.bookedVisits.splice(index, 1);
       await prisma.user.update({
         where: { email },
