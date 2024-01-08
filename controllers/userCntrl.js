@@ -5,16 +5,24 @@ import { prisma } from "../config/prismaConfig.js";
 export const createUser = asyncHandler(async (req, res) => {
   console.log("creating a user");
 
-  let { email } = req.body;
+  const { email, name = "", phone = "" } = req.body;
+
   const userExists = await prisma.user.findUnique({ where: { email: email } });
+
   if (!userExists) {
-    const user = await prisma.user.create({ data: req.body });
+    const user = await prisma.user.create({
+      data: { email, name, phone },
+    });
+
     res.send({
       message: "User registered successfully",
       user: user,
     });
-  } else res.status(201).send({ message: "User already registered" });
+  } else {
+    res.status(201).send({ message: "User already registered" });
+  }
 });
+
 
 // function to book a visit to resd
 export const bookVisit = asyncHandler(async (req, res) => {
@@ -175,6 +183,34 @@ export const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const users = await prisma.user.findMany();
     res.status(200).send(users);
+  } catch (err) {
+    throw new Error(err.message);
+  }
+});
+
+
+export const updateUserDetails = asyncHandler(async (req, res) => {
+  const { email, name, phone } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { email },
+      data: { name, phone },
+    });
+
+    res.send({
+      message: "User details updated successfully",
+      user: updatedUser,
+    });
   } catch (err) {
     throw new Error(err.message);
   }
